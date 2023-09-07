@@ -1,8 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'node:14' // Use a Node.js Docker image with necessary tools
-            args '-u root'  // Run as root if required
+            image 'node:16' // Use a Node.js Docker image with necessary tools
         }
     }
     stages {
