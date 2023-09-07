@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        dockerContainer {
-            image 'node:16' // Use a Node.js Docker image with necessary tools
-        }
-    }
+    agent any
     stages {
         stage('Checkout') {
             steps {
