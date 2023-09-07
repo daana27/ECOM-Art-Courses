@@ -4,7 +4,13 @@ node {
     stage('checkout') {
         checkout scm
     }
-
+ stage('Build') {
+        steps {
+            script {
+                docker = docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') // Initialize the variable
+            }
+        }
+    }
     docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
         stage('check java') {
             sh "java -version"
