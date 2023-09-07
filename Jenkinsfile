@@ -1,37 +1,56 @@
-pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm // Checkout your source code from your Git repository
+#!/usr/bin/env groovy
+
+node {
+    stage('checkout') {
+        checkout scm
+    }
+
+    gitlabCommitStatus('build') {
+        docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
+            stage('check java') {
+                sh "java -version"
+            }
+
+            stage('clean') {
+                sh "chmod +x mvnw"
+                sh "./mvnw -ntp clean -P-webapp"
+            }
+            stage('nohttp') {
+                sh "./mvnw -ntp checkstyle:check"
+            }
+
+            stage('install tools') {
+                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
+            }
+
+            stage('npm install') {
+                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
+            }
+            stage('backend tests') {
+                try {
+                    sh "./mvnw -ntp verify -P-webapp"
+                } catch(err) {
+                    throw err
+                } finally {
+                    junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
+                }
+            }
+
+            stage('frontend tests') {
+                try {
+                   sh "npm install"
+                   sh "npm test"
+                } catch(err) {
+                    throw err
+                } finally {
+                    junit '**/target/test-results/TESTS-results-jest.xml'
+                }
+            }
+
+            stage('packaging') {
+                sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
-        stage('Build Angular') {
-            steps {
-                sh 'npm install && npm run build'
-            }
-        }
-        // stage('Maven Build') {
-        //     steps {
-        //         sh 'mvn' // Build the Java/Maven part of your project
-        //     }
-        // }
-        // stage('Run Tests') {
-        //     steps {
-        //         sh 'mvn test' // Run tests using Maven
-        //     }
-        // }
-        // stage('Docker Build') {
-        //     steps {
-        //         script {
-        //             docker.build('my-app-image') // Build a Docker image for your app
-        //         }
-        //     }
-        // }
-        // stage('Deploy to AWS') {
-        //     steps {
-        //         // Use AWS CLI or SDK to deploy your application to AWS services (EC2, RDS, etc.)
-        //     }
-        // }
     }
 }
