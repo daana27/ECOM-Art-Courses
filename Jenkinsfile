@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-
+def docker // Define the variable
 node {
     stage('checkout') {
         checkout scm
