@@ -1,67 +1,59 @@
 #!/usr/bin/env groovy
 
-node {
-    tools {
-        'org.jenkinsci.plugins.docker.commons.tools.DockerTool' '18.09'
-    }
+pipeline {
+    agent any
     environment {
-    DOCKER_CERT_PATH = credentials('docker')
+        DOCKER_CERT_PATH = credentials('docker')
     }
-    stages{
+    stages {
         stage('foo') {
-          steps {
-            sh "docker version" // DOCKER_CERT_PATH is automatically picked up by the Docker client
-          }
+            steps {
+                script {
+                    def dockerTool = tool name: 'DockerTool', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
+                    withEnv(["PATH+DOCKER=${dockerTool}/bin"]) {
+                        sh "docker version"
+                    }
+                }
+            }
         }
         stage('checkout') {
-            checkout scm
+            steps {
+                checkout scm
+            }
         }
-        docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
-            stage('check java') {
-                sh "java -version"
-            }
+        stage('Build and Test') {
+            steps {
+                script {
+                    def jhipsterImage = docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
+                        sh "java -version"
+                        sh "chmod +x mvnw"
+                        sh "./mvnw -ntp clean -P-webapp"
+                        sh "./mvnw -ntp checkstyle:check"
+                        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
+                        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
 
-            stage('clean') {
-                sh "chmod +x mvnw"
-                sh "./mvnw -ntp clean -P-webapp"
-            }
-            stage('nohttp') {
-                sh "./mvnw -ntp checkstyle:check"
-            }
+                        try {
+                            sh "./mvnw -ntp verify -P-webapp"
+                        } catch (err) {
+                            throw err
+                        } finally {
+                            junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
+                        }
 
-            stage('install tools') {
-                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
-            }
+                        sh "npm install"
+                        try {
+                            sh "npm test"
+                        } catch (err) {
+                            throw err
+                        } finally {
+                            junit '**/target/test-results/TESTS-results-jest.xml'
+                        }
 
-            stage('npm install') {
-                sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
-            }
-            stage('backend tests') {
-                try {
-                    sh "./mvnw -ntp verify -P-webapp"
-                } catch(err) {
-                    throw err
-                } finally {
-                    junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
+                        sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+                        archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                    }
                 }
-            }
-
-            stage('frontend tests') {
-                try {
-                   sh "npm install"
-                   sh "npm test"
-                } catch(err) {
-                    throw err
-                } finally {
-                    junit '**/target/test-results/TESTS-results-jest.xml'
-                }
-            }
-
-            stage('packaging') {
-                sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
     }
-
 }
