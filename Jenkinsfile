@@ -3,16 +3,6 @@
 pipeline {
     agent any
     stages {
-        stage('foo') {
-            steps {
-                script {
-                    def dockerTool = tool name: 'DockerTool', type: 'org.jenkinsci.plugins.docker.commons.tools.DockerTool'
-                    withEnv(["PATH+DOCKER=${dockerTool}/bin"]) {
-                        sh "docker version"
-                    }
-                }
-            }
-        }
         stage('checkout') {
             steps {
                 checkout scm
