@@ -1,45 +1,48 @@
-#!/usr/bin/env groovy
-
 pipeline {
     agent any
+    
+    tools {
+        // Install the Maven version configured as "Default" and add it to the path.
+        maven "Default"
+        nodejs "Default"
+    }
+
     stages {
-        stage('checkout') {
-            steps {
-                checkout scm
+         // Get some code from a GitHub repository
+        stage('checkout'){
+            steps{
+                git url : 'https://github.com/deschcla/ECOM-Art-Courses.git', branch:"ci-cd"
             }
         }
-        stage('Build and Test') {
-            steps {
-                script {
-                    def jhipsterImage = docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
-                        sh "java -version"
-                        sh "chmod +x mvnw"
-                        sh "./mvnw -ntp clean -P-webapp"
-                        sh "./mvnw -ntp checkstyle:check"
-                        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
-                        sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
+        stage('Build frontend'){
+            steps{
+                sh "npm install"
+            }
+        }
+        stage('check java') {
+            steps{
+                sh "java -version"   
+            }
+            
+        }
+        stage('clean') {
+            steps{
+                sh "chmod +x mvnw"
+                sh "./mvnw -ntp clean -P-webapp"
+            }
+        }
+        stage('nohttp') {
+            steps{
+                sh "./mvnw -ntp checkstyle:check"
+                
+            }
+        }
 
-                        try {
-                            sh "./mvnw -ntp verify -P-webapp"
-                        } catch (err) {
-                            throw err
-                        } finally {
-                            junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
-                        }
-
-                        sh "npm install"
-                        try {
-                            sh "npm test"
-                        } catch (err) {
-                            throw err
-                        } finally {
-                            junit '**/target/test-results/TESTS-results-jest.xml'
-                        }
-
-                        sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
-                        archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-                    }
-                }
+        stage('packaging') {
+            steps{
+                sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                    
             }
         }
     }
