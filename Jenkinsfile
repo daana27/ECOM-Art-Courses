@@ -4,13 +4,6 @@ node {
     stage('checkout') {
         checkout scm
     }
-    
-    tools {
-        // Install the Maven version configured as "Default" and add it to the path.
-         maven "Default"
-         nodejs "Default"
-         docker "Default"
-    }
     docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
         stage('check java') {
             sh "java -version"
