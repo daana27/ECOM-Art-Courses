@@ -1,14 +1,14 @@
 #!/usr/bin/env groovy
 environment {     
-    DOCKERHUB_CREDENTIALS= credentials('6aa2882d-fb9f-4995-985e-5e737302ca68')  
+    DOCKERHUB_CREDENTIALS = credentials('6aa2882d-fb9f-4995-985e-5e737302ca68')  
 } 
 node {
     stage('checkout') {
         checkout scm
     }
     stage('Login to Docker Hub') {    
-        sh 'echo $DOCKERHUB_CREDENTIALS_USR';
-       // sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
+        sh 'echo $DOCKERHUB_CREDENTIALS';
+        sh 'docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
         echo 'Login Completed'             
     } 
     // docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
