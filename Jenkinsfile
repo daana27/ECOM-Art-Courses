@@ -9,6 +9,7 @@ node {
                     sh '''
                         echo $DOCKERHUB_USR
                         docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+                        writeFile file: '.env', text: "DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}\nDOCKERHUB_PASSWORD=${DOCKERHUB_PASSWORD}"
                     '''
                 }
             }  
