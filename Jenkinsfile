@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 environment {     
-    DOCKERHUB_CREDENTIALS= credentials('dockerhubcredentials')     
+    DOCKERHUB_CREDENTIALS= credentials('6aa2882d-fb9f-4995-985e-5e737302ca68')  
 } 
 node {
     stage('checkout') {
