@@ -407,7 +407,7 @@
                             </platforms>
                         </from>
                         <to>
-                            <image>ecom-art-courses:latest</image>
+                            <image>registry-1.docker.io/rocdaana27/ecom-art-courses</image>
                         </to>
                         <container>
                             <entrypoint>
