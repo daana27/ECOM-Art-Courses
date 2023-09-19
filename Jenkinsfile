@@ -3,16 +3,6 @@ node {
     stage('checkout') {
         checkout scm
     }
-    stage('docker hub login'){
-        withCredentials([usernamePassword(credentialsId: '6aa2882d-fb9f-4995-985e-5e737302ca68', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
-            script {
-                sh '''
-                    echo $DOCKERHUB_USR
-                    docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
-                '''
-            }
-        }  
-    }
     
     docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
         stage('check java') {
@@ -59,9 +49,19 @@ node {
         //     sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
         //     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         // }
-
+        stage('docker hub login'){
+            withCredentials([usernamePassword(credentialsId: '6aa2882d-fb9f-4995-985e-5e737302ca68', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
+                script {
+                    sh '''
+                        echo $DOCKERHUB_USR
+                        docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+                    '''
+                }
+            }  
+        }
         stage('deploy to dockerhub') {
             //sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+            
             sh "./mvnw package -Pprod verify jib:build -Djib.to.image=rocdaana27/ecom-art-courses"
             //archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
         }
