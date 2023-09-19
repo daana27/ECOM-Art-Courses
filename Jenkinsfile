@@ -8,6 +8,10 @@ node {
         stage('check java') {
             sh "java -version"
         }
+        stage('Login to Docker Hub') {      	                	
+            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'                		
+            echo 'Login Completed'             
+        } 
 
         stage('clean') {
             sh "chmod +x mvnw"
@@ -24,10 +28,7 @@ node {
         stage('npm install') {
             sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
         }
-        stage('Login to Docker Hub') {      	                	
-            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'                		
-            echo 'Login Completed'             
-        } 
+        
         // stage('backend tests') {
         //     try {
         //         sh "./mvnw -ntp verify -P-webapp"
