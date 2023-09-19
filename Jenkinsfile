@@ -4,11 +4,11 @@ node {
         checkout scm
     }
     stage('docker hub login'){
-        withCredentials([usernamePassword(credentialsId: '6aa2882d-fb9f-4995-985e-5e737302ca68', passwordVariable: 'DOCKERHUB_PSW', usernameVariable: 'DOCKERHUB_USR')]) {
+        withCredentials([usernamePassword(credentialsId: '6aa2882d-fb9f-4995-985e-5e737302ca68', usernameVariable: 'DOCKERHUB_USR')]) {
             script {
                 sh '''
                     echo $DOCKERHUB_USR
-                    docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+                    docker login -u $DOCKERHUB_USR --password-stdin
                 '''
             }
         }  
