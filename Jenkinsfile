@@ -1,18 +1,19 @@
 #!/usr/bin/env groovy
-
+environment {     
+    DOCKERHUB_CREDENTIALS= credentials('dockerhubcredentials')     
+} 
 node {
     stage('checkout') {
         checkout scm
     }
+    stage('Login to Docker Hub') {      	                	
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
+        echo 'Login Completed'             
+    } 
     docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
         stage('check java') {
             sh "java -version"
         }
-        stage('Login to Docker Hub') {      	                	
-            sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
-            echo 'Login Completed'             
-        } 
-
         stage('clean') {
             sh "chmod +x mvnw"
             sh "./mvnw -ntp clean -P-webapp"
