@@ -7,7 +7,7 @@ node {
         checkout scm
     }
     stage('Login to Docker Hub') {    
-        sh 'echo $DOCKERHUB_CREDENTIALS';
+        sh 'echo ${DOCKERHUB_CREDENTIALS_USR} ';
         sh 'docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
         echo 'Login Completed'             
     } 
