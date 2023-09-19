@@ -24,7 +24,10 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <start-class>com.ecom.art_courses.EcomArtCoursesApp</start-class>
+        <start-class>com.ecom.art_courses<auth>
+                                <username>${DOCKERHUB_USERNAME}</username>
+                                <password>${DOCKERHUB_PASSWORD}</password>
+                            </auth>.EcomArtCoursesApp</start-class>
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
@@ -408,6 +411,10 @@
                         </from>
                         <to>
                             <image>registry-1.docker.io/rocdaana27/ecom-art-courses</image>
+                            <auth>
+                                <username>${DOCKERHUB_USERNAME}</username>
+                                <password>${DOCKERHUB_PASSWORD}</password>
+                            </auth>
                         </to>
                         <container>
                             <entrypoint>
@@ -715,6 +722,7 @@
                             <configuration>
                                 <files>
                                     <file>sonar-project.properties</file>
+                                     <file>.env</file>
                                 </files>
                             </configuration>
                         </execution>
