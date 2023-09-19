@@ -6,29 +6,30 @@ node {
     stage('checkout') {
         checkout scm
     }
-    stage('Login to Docker Hub') {      	                	
-        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
+    stage('Login to Docker Hub') {    
+        sh 'echo $DOCKERHUB_CREDENTIALS_USR';
+       // sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'                		
         echo 'Login Completed'             
     } 
-    docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
-        stage('check java') {
-            sh "java -version"
-        }
-        stage('clean') {
-            sh "chmod +x mvnw"
-            sh "./mvnw -ntp clean -P-webapp"
-        }
-        stage('nohttp') {
-            sh "./mvnw -ntp checkstyle:check"
-        }
+    // docker.image('jhipster/jhipster:v8.0.0-beta.2').inside('-u jhipster -e MAVEN_OPTS="-Duser.home=./"') {
+    //     stage('check java') {
+    //         sh "java -version"
+    //     }
+    //     stage('clean') {
+    //         sh "chmod +x mvnw"
+    //         sh "./mvnw -ntp clean -P-webapp"
+    //     }
+    //     stage('nohttp') {
+    //         sh "./mvnw -ntp checkstyle:check"
+    //     }
 
-        stage('install tools') {
-            sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
-        }
+    //     stage('install tools') {
+    //         sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:install-node-and-npm@install-node-and-npm"
+    //     }
 
-        stage('npm install') {
-            sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
-        }
+    //     stage('npm install') {
+    //         sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
+    //     }
         
         // stage('backend tests') {
         //     try {
@@ -62,7 +63,7 @@ node {
         //     	echo 'Build Image Completed'                
         //     }           
         // } 
-    }
+  //  }
 }
 
 // pipeline {
