@@ -55,7 +55,7 @@ node {
                     sh '''
                         echo $DOCKERHUB_USR
                         echo "DOCKERHUB_USERNAME=${DOCKERHUB_USR}" > .env
-                        secho "DOCKERHUB_PASSWORD=${DOCKERHUB_PSW}" >> .env
+                        echo "DOCKERHUB_PASSWORD=${DOCKERHUB_PSW}" >> .env
                     '''
                 }
             }  
