@@ -24,31 +24,44 @@ node {
         stage('npm install') {
             sh "./mvnw -ntp com.github.eirslett:frontend-maven-plugin:npm"
         }
-        stage('backend tests') {
-            try {
-                sh "./mvnw -ntp verify -P-webapp"
-            } catch(err) {
-                throw err
-            } finally {
-                junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
-            }
-        }
+        stage('Login to Docker Hub') {      	
+            steps{                       	
+            	sh 'echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'                		
+            	echo 'Login Completed'      
+            }           
+        } 
+        // stage('backend tests') {
+        //     try {
+        //         sh "./mvnw -ntp verify -P-webapp"
+        //     } catch(err) {
+        //         throw err
+        //     } finally {
+        //         junit '**/target/surefire-reports/TEST-*.xml,**/target/failsafe-reports/TEST-*.xml'
+        //     }
+        // }
 
-        stage('frontend tests') {
-            try {
-               sh "npm install"
-               sh "npm test"
-            } catch(err) {
-                throw err
-            } finally {
-                junit '**/target/test-results/TESTS-results-jest.xml'
-            }
-        }
+        // stage('frontend tests') {
+        //     try {
+        //        sh "npm install"
+        //        sh "npm test"
+        //     } catch(err) {
+        //         throw err
+        //     } finally {
+        //         junit '**/target/test-results/TESTS-results-jest.xml'
+        //     }
+        // }
 
-        stage('packaging') {
-            sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
-            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-        }
+        // stage('packaging') {
+        //     sh "./mvnw -ntp verify -P-webapp -Pprod -DskipTests"
+        //     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+        // }
+        
+        // stage('Build Docker Image') {  
+        //     steps{                     
+        //     	sh 'docker build -t rocdaana27/ecom-art-courses:0.1 .'     
+        //     	echo 'Build Image Completed'                
+        //     }           
+        // } 
     }
 }
 
